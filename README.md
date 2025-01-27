@@ -40,4 +40,3 @@ This project demonstrates a secure CI/CD pipeline using GitHub Actions. The pipe
 
 ## License
 This project is licensed under the MIT License.
-```
