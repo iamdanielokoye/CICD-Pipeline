@@ -18,7 +18,7 @@ This project demonstrates a secure CI/CD pipeline using GitHub Actions. The pipe
 ## Usage
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/secure-cicd-pipeline.git
+   git clone https://github.com/iamdanielokoye/CICD-Pipeline.git
    ```
 
 2. Navigate to the `app/` directory and build the Docker image:
