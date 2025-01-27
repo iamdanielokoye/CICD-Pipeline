@@ -1,53 +1,79 @@
 name: CI/CD Pipeline
 
-on: 
+on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
 jobs:
   lint-test-build:
+    name: Lint, Test, and Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
-        
-      - name: Set up Python/Node (choose your language)
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-        
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt  # Or npm install
-        
-      - name: Lint
-        run: flake8 .  # Replace with relevant linter
-        
-      - name: Run tests
-        run: pytest tests/  # Or equivalent
 
-      - name: Build Docker image
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Linter (Flake8)
+        run: flake8 .
+
+      - name: Run Unit Tests (Pytest)
+        run: pytest tests/
+
+      - name: Build Docker Image
         run: docker build -t app:latest .
 
   security-scan:
+    name: Security Scanning
     runs-on: ubuntu-latest
+    needs: lint-test-build
     steps:
-      - name: Trivy scan
-        run: trivy image app:latest
-        
-      - name: SonarQube analysis
-        run: ./scripts/sonar-scanner.sh  # Script for SonarQube setup
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Trivy Security Scan
+        run: trivy image --severity HIGH,CRITICAL app:latest
+
+      - name: Run SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=flask-app \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://sonarqube.example.com \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
   deploy:
+    name: Deploy to Kubernetes
     runs-on: ubuntu-latest
     needs: [lint-test-build, security-scan]
     steps:
-      - name: Set up kubectl
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: '1.24.0'
-        
-      - name: Deploy to Kubernetes
+
+      - name: Set up Kubeconfig
         run: |
-          kubectl apply -f kubernetes/
+          echo "${{ secrets.KUBECONFIG }}" > kubeconfig.yaml
+          export KUBECONFIG=$(pwd)/kubeconfig.yaml
+
+      - name: Deploy Application
+        run: kubectl apply -f kubernetes/
+
+      - name: Verify Deployment
+        run: kubectl get pods -l app=flask-app
