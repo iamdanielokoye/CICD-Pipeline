@@ -8,6 +8,7 @@ app = flask.Flask(__name__)
 def hello():
     return "Hello, World!"
 
+
 @app.route('/test')
 def test():
     return "Test route"

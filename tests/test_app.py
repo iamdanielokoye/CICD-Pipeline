@@ -1,6 +1,6 @@
-
 import pytest
 from app import app
+
 
 @pytest.fixture
 def client():
@@ -8,9 +8,11 @@ def client():
     with app.test_client() as client:
         yield client
 
+
 def test_hello(client):
     rv = client.get('/')
     assert rv.data == b'Hello, World!'
+
 
 def test_test_route(client):
     rv = client.get('/test')
