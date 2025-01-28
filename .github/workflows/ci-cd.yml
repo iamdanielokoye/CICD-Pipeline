@@ -36,7 +36,7 @@ jobs:
         run: pytest tests/
 
       - name: Build Docker Image
-        run: docker build -t app:latest .
+        run: docker build -t app:latest -f app/Dockerfile app/
 
   security-scan:
     name: Security Scanning
