@@ -10,4 +10,3 @@ class TestApp(unittest.TestCase):
         response = tester.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, b"Hello, World!")
-
