@@ -22,7 +22,8 @@ jobs:
           python-version: '3.9'
 
       - name: Install Dependencies
-        run: pip install -r app/requirements.txt
+        run: pip -m pip install --upgrade pip
+            pip install -r app/requirements.txt
 
       - name: Run Linter (Flake8)
         run: |
